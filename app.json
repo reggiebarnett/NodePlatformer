@@ -1,7 +1,0 @@
-{
-  "name": "NodePlatformer",
-  "description": "multiplayer game made with nodejs",
-  "repository": "https://github.com/reggiebarnett/NodePlatformer.git",
-  "keywords": ["node", "express"],
-  "image": ""
-}
