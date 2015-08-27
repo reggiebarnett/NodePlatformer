@@ -123,6 +123,7 @@ var Player = function(name, x, y) {
 Player.prototype.move = function(dx, dy) {
 	this.x += dx;
 	this.y += dy;
+	console.log("x: "+this.x+" y: "+this.y);
 };
 
 module.exports = new Game();
