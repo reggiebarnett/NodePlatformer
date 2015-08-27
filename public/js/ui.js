@@ -16,8 +16,6 @@ function setupCanvas() {
 }
 
 function drawMap() {
-	var x = 0;
-	var y = 0;
 	var cell_width = canvas.width / map.length;
 	var cell_height = canvas.height / map[0].length;
 	context.strokeStyle = "#aaaaaa";
@@ -26,16 +24,13 @@ function drawMap() {
 		for(var j = 0; j < map[0].length; j++) {
 			if(map[i][j] == 'x') {
 				context.fillStyle = "#666666";
-				context.fillRect(x, y, cell_width, cell_height);
+				context.fillRect(j * cell_width, i * cell_height, cell_width, cell_height);
 			} else {
 				context.fillStyle = "#eeeeee";
-				context.fillRect(x, y, cell_width, cell_height);
+				context.fillRect(j * cell_width, i * cell_height, cell_width, cell_height);
 			}
-			context.strokeRect(x, y, cell_width, cell_height);
-			x += cell_width;
+			context.strokeRect(j * cell_width, i * cell_height, cell_width, cell_height);
 		}
-		x = 0;
-		y += cell_height;
 	}
 }
 
