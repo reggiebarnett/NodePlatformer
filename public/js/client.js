@@ -79,7 +79,8 @@ MoveTimer.prototype.tick = function() {
 	player.move(move_timer.direction);
 };
 
-var Player = function() {
+var Player = function(name) {
+	this.name = name;
 	this.x = 100;
 	this.y = 300;
 	this.width = 50;
@@ -99,7 +100,7 @@ Player.prototype.move = function(direction) {
 	var MAX_FALL = 6;
 	if(direction == "left") {
 		if(this.x - this.xspeed < 0) {
-			dx = this.xspeed * -1;
+			dx = this.x * -1;
 		} else if(this.x == 0) {
 			dx = 0;
 		} else {
@@ -107,7 +108,7 @@ Player.prototype.move = function(direction) {
 		}		
 	} else if(direction == "right") {
 		if(this.x + this.xspeed > canvas.width - player.width) {
-			dx = (canvas.width - player.width) - this.xspeed;
+			dx = (canvas.width - player.width) - this.x;
 		} else if(this.x == canvas.width - player.width) {
 			dx = 0;
 		} else {
@@ -139,11 +140,11 @@ Player.prototype.move = function(direction) {
 				});
 
 				count++;
-				console.log(count);
-				console.log("Ypos: "+this.y);
+				//console.log(count);
+				//console.log("Ypos: "+this.y);
 			}
 			this.yspeed = 0;
-			console.log("out");
+			//console.log("out");
 		}
 	}
 
@@ -162,16 +163,25 @@ function redraw() {
 	}	
 }
 
+socket.on('init', function(name) {
+	init(name);
+});
+
 socket.on('update', function(players_update) {
 	players = players_update;
+	for(var i = 0; i < players.length; i++) {
+		if(players[i].name == player.name) {
+			player.x = players[i].x;
+			player.y = players[i].y;
+			break;
+		}
+	}
 	redraw();
 });
 
-function init() {
+function init(name) {
 	setupCanvas();
 	drawMap();
-	player = new Player();
+	player = new Player(name);
 	move_timer = new MoveTimer();
 }
-
-init();

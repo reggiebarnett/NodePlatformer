@@ -16,6 +16,8 @@ io.on('connection', function(socket) {
 	var player_name = game.connect();
 	game.setIO(io);
 
+	socket.emit('init', player_name);
+
 	socket.on('disconnect', function() {
 		game.disconnect(player_name);
 	});

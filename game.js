@@ -34,6 +34,7 @@ Game.prototype.updateLoop = function() {
 				}
 			}
 			this.players[player_index].move(this.data_received[i].dx, this.data_received[i].dy);
+			//console.log(this.players[player_index].x);
 		}
 	}
 
