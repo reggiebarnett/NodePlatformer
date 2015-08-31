@@ -14,7 +14,8 @@ Game.prototype.setIO = function(io) {
 	this.io = io;
 };
 
-///
+/// Checks data_received every cycle to see if any movements have occured in the client
+/// 
 Game.prototype.updateLoop = function() {
 	if(this.io == undefined) {
 		console.log("ERROR: IO not set!");
@@ -23,9 +24,7 @@ Game.prototype.updateLoop = function() {
 
 	var client_update, player_index;
 	
-	if(this.data_received.length == 0) {
-		// No new moves to apply
-	} else {
+	if(this.data_received.length !== 0) {
 		// Apply moves
 		for(var i = 0; i < this.data_received.length; i++) {
 			for(player_index = 0; player_index < this.players.length; player_index++) { 
@@ -44,7 +43,9 @@ Game.prototype.updateLoop = function() {
 	// Send out snapshot from 3 cycles ago
 	if(this.snapshot_queue.length > 3) {
 		client_update = this.snapshot_queue.pop();
-		this.io.sockets.emit('update', client_update)
+		if(this.data_received.length !== 0) {
+			this.io.sockets.emit('update', client_update);
+		}
 	}	
 
 	// Reset data array for next loop
@@ -104,12 +105,14 @@ Game.prototype.disconnect = function(name) {
 	for(var i = 0; i < this.players.length; i++) {
 		if(this.players[i].name === name) {
 			this.players.splice(i, 1);
+		} else {
+			this.data_received.push({player_name: this.players[i].name, dx: 0, dy: 0}) // force update
 		}
 	}
 
 	if(this.players.length == 0) {
 		clearInterval(this.update_timer);
-	}
+	} 	
 };
 
 /// Data class for storing player positions

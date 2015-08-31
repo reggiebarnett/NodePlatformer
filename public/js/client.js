@@ -49,13 +49,14 @@ $(document).bind("keyup", function(e) {
 //================================================
 
 var player;
-var players;
+var players = [];
 var move_timer;
 
 /// Timer that smooths out key presses
 var MoveTimer = function() { 
 	this.direction = undefined;
 	this.timer = undefined;
+	this.fps = 60;
 };
 
 /// Start movement when key is first pressed
@@ -64,7 +65,7 @@ MoveTimer.prototype.start = function(direction) {
 		clearInterval(this.timer);
 	}		
 	this.direction = direction;
-	this.timer = setInterval(this.tick, 20);
+	this.timer = setInterval(this.tick, 1000.0 / this.fps);
 };
 
 /// Stop movement when user releases the key
@@ -168,6 +169,7 @@ socket.on('init', function(name) {
 });
 
 socket.on('update', function(players_update) {
+	console.log("updating");
 	players = players_update;
 	for(var i = 0; i < players.length; i++) {
 		if(players[i].name == player.name) {
@@ -180,8 +182,8 @@ socket.on('update', function(players_update) {
 });
 
 function init(name) {
-	setupCanvas();
-	drawMap();
 	player = new Player(name);
 	move_timer = new MoveTimer();
+	setupCanvas();
+	redraw();
 }
