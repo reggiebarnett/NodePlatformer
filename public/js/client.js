@@ -104,8 +104,8 @@ var Player = function(name) {
 /// If dx or dy are non-zero, emit move info to the server
 Player.prototype.move = function(direction) {
 	var dx = 0, dy = 0;
-	var gravity = .4;
-	var JUMP_SPEED = -8
+	var gravity = .8;
+	var JUMP_SPEED = -14;
 	var MAX_FALL = 15;
 
 	if(direction == "left") {
@@ -130,17 +130,16 @@ Player.prototype.move = function(direction) {
 	}
 	//while in the air
 	if(!on_Ground){
+		console.log(this.yspeed);
 		if(jumping){
-			console.log("jumping");
 			this.yspeed = JUMP_SPEED;
 			timeout++;
-			if(timeout > 20){
+			if(timeout > 10){
 				jumping = false;
 				timeout = 0;
 			}
 		}
 		else{
-			console.log("falling");
 			this.yspeed += gravity;
 			if(this.yspeed > MAX_FALL){
 				this.yspeed = MAX_FALL;
@@ -161,7 +160,7 @@ Player.prototype.move = function(direction) {
 			clearInterval(move_timer.timer);
 			move_timer.timer = undefined;
 		}
-		console.log(this.y);
+		//console.log(this.y);
 	}
 
 	if(dx !== 0 || dy !== 0) {
