@@ -51,6 +51,7 @@ $(document).bind("keyup", function(e) {
 var player;
 var players = [];
 var move_timer;
+var on_Ground = true;
 
 /// Timer that smooths out key presses
 var MoveTimer = function() { 
@@ -96,13 +97,8 @@ var Player = function(name) {
 Player.prototype.move = function(direction) {
 	var dx = 0, dy = 0;
 	var gravity = .4;
-	var on_Ground;
 	var JUMP_SPEED = -8
 	var MAX_FALL = 6;
-
-	//temp fix
-	if(on_Ground == undefined)
-		on_Ground = true;
 
 	if(direction == "left") {
 		if(this.x - this.xspeed < 0) {
