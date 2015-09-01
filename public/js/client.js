@@ -52,6 +52,7 @@ var player;
 var players = [];
 var move_timer;
 var on_Ground = true;
+var jumping = false;
 
 /// Timer that smooths out key presses
 var MoveTimer = function() { 
@@ -64,7 +65,11 @@ var MoveTimer = function() {
 MoveTimer.prototype.start = function(direction) {
 	if(move_timer.timer !== undefined) {
 		clearInterval(this.timer);
-	}		
+	}
+	if(direction == "up" && on_Ground == true){
+		jumping = true;	
+		on_Ground = false;
+	}	
 	this.direction = direction;
 	this.timer = setInterval(this.tick, 1000.0 / this.fps);
 };
@@ -74,7 +79,11 @@ MoveTimer.prototype.stop = function(direction) {
 	if(this.direction == direction) {
 		clearInterval(this.timer);
 		this.timer = undefined;
-	}	
+	}
+	console.log("dir "+direction);
+	if(direction == "up"){
+		jumping = false;
+	}
 };
 
 MoveTimer.prototype.tick = function() {
@@ -98,7 +107,7 @@ Player.prototype.move = function(direction) {
 	var dx = 0, dy = 0;
 	var gravity = .4;
 	var JUMP_SPEED = -8
-	var MAX_FALL = 6;
+	var MAX_FALL = 15;
 
 	if(direction == "left") {
 		if(this.x - this.xspeed < 0) {
@@ -118,27 +127,29 @@ Player.prototype.move = function(direction) {
 		}
 		//WIP ;_;
 	} else if(direction == "up"){
-		console.log('jump');
-		console.log(on_Ground);
-
-		if(on_Ground){
-			this.yspeed = JUMP_SPEED;
-			on_Ground = false;
-		}	
+			this.yspeed = JUMP_SPEED;	
 	}
 	//while in the air
 	if(!on_Ground){
-		this.yspeed += gravity;
-		if(this.yspeed > MAX_FALL){
-			this.yspeed = MAX_FALL;
+		console.log("jumping "+jumping);
+		if(jumping){
+			this.yspeed = JUMP_SPEED;
 		}
-		this.y += this.yspeed;
+		else{
+			this.yspeed += gravity;
+			if(this.yspeed > MAX_FALL){
+				this.yspeed = MAX_FALL;
+			}
+		}
+
+		//this.y += this.yspeed;
 		dy = this.yspeed;
 		if(this.y >= 300){
 			this.y = 300;
 			on_Ground = true;
 		}
 		console.log(this.y);
+		console.log(on_Ground);
 	}
 
 
