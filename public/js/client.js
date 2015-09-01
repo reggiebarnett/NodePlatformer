@@ -96,9 +96,14 @@ var Player = function(name) {
 Player.prototype.move = function(direction) {
 	var dx = 0, dy = 0;
 	var gravity = .4;
-	var on_Ground = true;
+	var on_Ground;
 	var JUMP_SPEED = -8
 	var MAX_FALL = 6;
+
+	//temp fix
+	if(on_Ground == undefined)
+		on_Ground = true;
+
 	if(direction == "left") {
 		if(this.x - this.xspeed < 0) {
 			dx = this.x * -1;
@@ -119,35 +124,27 @@ Player.prototype.move = function(direction) {
 	} else if(direction == "up"){
 		console.log('jump');
 		console.log(on_Ground);
+
 		if(on_Ground){
-			var count = 0; //debugging
 			this.yspeed = JUMP_SPEED;
 			on_Ground = false;
-			//update while player is in air	
-			while(!on_Ground && count < 50){
-				this.yspeed += gravity;
-				if(this.yspeed > MAX_FALL){
-					this.yspeed = MAX_FALL;
-				}
-				this.y += this.yspeed;
-				dy = this.yspeed;
-				if(this.y >= 300){
-					this.y = 300;
-					on_Ground = true;
-				}
-				socket.emit('move', {
-					dx: dx,
-					dy: dy
-				});
-
-				count++;
-				//console.log(count);
-				//console.log("Ypos: "+this.y);
-			}
-			this.yspeed = 0;
-			//console.log("out");
-		}
+		}	
 	}
+	//while in the air
+	if(!on_Ground){
+		this.yspeed += gravity;
+		if(this.yspeed > MAX_FALL){
+			this.yspeed = MAX_FALL;
+		}
+		this.y += this.yspeed;
+		dy = this.yspeed;
+		if(this.y >= 300){
+			this.y = 300;
+			on_Ground = true;
+		}
+		console.log(this.y);
+	}
+
 
 	if(dx !== 0 || dy !== 0) {
 		socket.emit('move', {
