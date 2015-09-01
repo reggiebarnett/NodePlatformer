@@ -53,6 +53,7 @@ var players = [];
 var move_timer;
 var on_Ground = true;
 var jumping = false;
+var timeout = 0;
 
 /// Timer that smooths out key presses
 var MoveTimer = function() { 
@@ -132,6 +133,11 @@ Player.prototype.move = function(direction) {
 		if(jumping){
 			console.log("jumping");
 			this.yspeed = JUMP_SPEED;
+			timeout++;
+			if(timeout > 20){
+				jumping = false;
+				timeout = 0;
+			}
 		}
 		else{
 			console.log("falling");
@@ -151,6 +157,7 @@ Player.prototype.move = function(direction) {
 			dy = 0;
 			//this.y = 300;
 			on_Ground = true;
+			timeout = 0;
 			clearInterval(move_timer.timer);
 			move_timer.timer = undefined;
 		}
