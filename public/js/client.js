@@ -67,8 +67,8 @@ MoveTimer.prototype.start = function(direction) {
 		clearInterval(this.timer);
 	}
 	if(direction == "up"){
+		console.log("jump");
 		jumping = true;	
-		on_Ground = false;
 	}	
 	this.direction = direction;
 	this.timer = setInterval(this.tick, 1000.0 / this.fps);
@@ -125,7 +125,7 @@ Player.prototype.move = function(direction) {
 		}
 		//WIP ;_;
 	} else if(direction == "up"){
-		
+		on_Ground = false;
 	}
 	//while in the air
 	if(!on_Ground){
@@ -141,12 +141,18 @@ Player.prototype.move = function(direction) {
 			}
 		}
 
-		//this.y += this.yspeed;
-		dy = this.yspeed;
+		if(player.y + this.yspeed > 300) {
+			dy = 300 - player.y;
+		} else  {
+			dy = this.yspeed;
+		}		
+
 		if(this.y >= 300 && !jumping){
-			this.y = 300;
+			dy = 0;
+			//this.y = 300;
 			on_Ground = true;
 			clearInterval(move_timer.timer);
+			move_timer.timer = undefined;
 		}
 		console.log(this.y);
 	}
