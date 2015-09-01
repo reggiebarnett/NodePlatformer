@@ -66,7 +66,7 @@ MoveTimer.prototype.start = function(direction) {
 	if(move_timer.timer !== undefined) {
 		clearInterval(this.timer);
 	}
-	if(direction == "up" && on_Ground == true){
+	if(direction == "up"){
 		jumping = true;	
 		on_Ground = false;
 	}	
@@ -76,14 +76,12 @@ MoveTimer.prototype.start = function(direction) {
 
 /// Stop movement when user releases the key
 MoveTimer.prototype.stop = function(direction) {
-	if(this.direction == direction) {
-		clearInterval(this.timer);
-		this.timer = undefined;
-	}
-	console.log("dir "+direction);
 	if(direction == "up"){
 		jumping = false;
-	}
+	} else if(this.direction == direction) {
+		clearInterval(this.timer);
+		this.timer = undefined;
+	}	
 };
 
 MoveTimer.prototype.tick = function() {
@@ -127,15 +125,16 @@ Player.prototype.move = function(direction) {
 		}
 		//WIP ;_;
 	} else if(direction == "up"){
-			this.yspeed = JUMP_SPEED;	
+		
 	}
 	//while in the air
 	if(!on_Ground){
-		console.log("jumping "+jumping);
 		if(jumping){
+			console.log("jumping");
 			this.yspeed = JUMP_SPEED;
 		}
 		else{
+			console.log("falling");
 			this.yspeed += gravity;
 			if(this.yspeed > MAX_FALL){
 				this.yspeed = MAX_FALL;
@@ -144,14 +143,13 @@ Player.prototype.move = function(direction) {
 
 		//this.y += this.yspeed;
 		dy = this.yspeed;
-		if(this.y >= 300){
+		if(this.y >= 300 && !jumping){
 			this.y = 300;
 			on_Ground = true;
+			clearInterval(move_timer.timer);
 		}
 		console.log(this.y);
-		console.log(on_Ground);
 	}
-
 
 	if(dx !== 0 || dy !== 0) {
 		socket.emit('move', {
@@ -173,10 +171,14 @@ socket.on('init', function(name) {
 });
 
 socket.on('update', function(players_update) {
-	console.log("updating");
-	players = players_update;
-	for(var i = 0; i < players.length; i++) {
-		if(players[i].name == player.name) {
+	if(players.length == 0 || players.length != players_update.length) {
+		players = players_update;
+		console.log("updating");
+	}
+	for(var i = 0; i < players_update.length; i++) {
+		players[i].x = players_update[i].x;
+		players[i].y = players_update[i].y;
+		if(players_update[i].name == player.name) {
 			player.x = players[i].x;
 			player.y = players[i].y;
 			break;
