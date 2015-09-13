@@ -1,8 +1,21 @@
 var canvas;
 var context;
-var map = 
-[[0, 0],
-['x', 'x']];
+var map;
+
+var Map = function() {
+	this.objects = [];
+};
+
+Map.prototype.addObject = function(shape) {
+	this.objects.push(shape);
+};
+
+var Rectangle = function(x, y, width, height) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+};
 
 function setupCanvas() {
 	canvas = document.getElementById("canvas");
@@ -13,10 +26,26 @@ function setupCanvas() {
 	context.fillRect(0, 0, 800, 600);
 	context.strokeStyle = "#aaaaaa";
 	context.strokeRect(0, 0, 800, 600);
+
+	createMap();
+}
+
+function createMap() {
+	map = new Map();
+	map.addObject(new Rectangle(0, 300, 600, 300));
 }
 
 function drawMap() {
-	var cell_width = canvas.width / map.length;
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	context.strokeStyle = "#666666";
+	context.fillStyle = "#666666";
+	context.strokeRect(0, 0, canvas.width, canvas.height);
+
+	for(var i = 0; i < map.objects.length; i++) {
+		var shape = map.objects[i];
+		context.fillRect(shape.x, shape.y, shape.width, shape.height);
+	}
+	/*var cell_width = canvas.width / map.length;
 	var cell_height = canvas.height / map[0].length;
 	context.strokeStyle = "#aaaaaa";
 
@@ -31,7 +60,7 @@ function drawMap() {
 			}
 			context.strokeRect(j * cell_width, i * cell_height, cell_width, cell_height);
 		}
-	}
+	}*/
 }
 
 function drawPlayer(player) {
