@@ -3,24 +3,19 @@ $(document).bind("keydown", (function(e) {
 	switch(input) {
 		case 38: //up arrow
 		case 87: //w
-			if(move_timer.timer == undefined || move_timer.direction == "right" || move_timer.direction == "left") {
-				move_timer.start("up");
-			}
+		case 32: //spacebar
+			move_timer.addDirection("up");
 			break;
 		case 40: //down arrow
 		case 83: //s
 			break;
 		case 37: //left arrow
 		case 65: //a
-			if(move_timer.timer == undefined || move_timer.direction == "right") {
-				move_timer.start("left");
-			}			
+			move_timer.addDirection("left");
 			break;
 		case 39: //right arrow
 		case 68: //d
-			if(move_timer.timer == undefined || move_timer.direction == "left") {
-				move_timer.start("right");
-			}		
+			move_timer.addDirection("right");
 			break;
 	}
 }));
@@ -30,18 +25,19 @@ $(document).bind("keyup", function(e) {
 	switch(input) {
 		case 38: //up arrow
 		case 87: //w
-			move_timer.stop("up");
+		case 32: //spacebar
+			move_timer.removeDirection("up");
 			break;
 		case 40: //down arrow
 		case 83: //s
 			break;
 		case 37: //left arrow
 		case 65: //a
-			move_timer.stop("left");
+			move_timer.removeDirection("left");
 			break;
 		case 39: //right arrow
 		case 68: //d
-			move_timer.stop("right");
+			move_timer.removeDirection("right");
 			break;
 	}
 });
@@ -57,21 +53,73 @@ var timeout = 0;
 
 /// Timer that smooths out key presses
 var MoveTimer = function() { 
-	this.direction = undefined;
+	this.directions = [];
+	this.dirs_to_remove = [];
 	this.timer = undefined;
 	this.fps = 60;
 };
 
+MoveTimer.prototype.addDirection = function(direction) {
+	for(var i = 0; i < this.directions.length; i++) {
+		if(this.directions[i] == direction) {
+			return;
+		} else if(this.directions[i] == "left" && direction == "right") {
+			this.directions.splice(i, 1);
+		} else if(this.directions[i] == "right" && direction == "left") {
+			this.directions.splice(i, 1);
+		} 
+	}
+
+	if(direction == "up"){
+		jumping = true;	
+	}	
+
+	this.directions.push(direction);
+	if(this.directions.length == 1 && this.timer == undefined) {
+		this.start();
+	} else {
+		// if the timer is already going
+	}
+};
+
+MoveTimer.prototype.removeDirection = function(direction) {
+	var removed = undefined;
+
+	if(direction == "up") {
+		jumping = false;
+	}
+
+	if(!on_Ground) {
+		this.dirs_to_remove.push(direction);
+	}
+
+	for(var i = 0; i < this.directions.length; i++) {
+		if(this.directions[i] == direction) {
+			if(direction !== "up" || on_Ground) {
+				removed = this.directions.splice(i, 1);
+			} 
+		}
+	}
+
+	if(this.directions.length == 0) {
+		clearInterval(this.timer);
+		this.timer = undefined;
+	}
+};
+
 /// Start movement when key is first pressed
-MoveTimer.prototype.start = function(direction) {
+MoveTimer.prototype.start = function() {
+	this.dirs_to_remove = [];
 	if(move_timer.timer !== undefined) {
 		clearInterval(this.timer);
 	}
-	if(direction == "up"){
-		console.log("jump");
-		jumping = true;	
-	}	
-	this.direction = direction;
+	for(var i = 0; i < this.directions.length; i++) {
+		if(this.directions[i] == "up"){
+			jumping = true;	
+		}	
+	}
+	
+	//this.direction = direction;
 	this.timer = setInterval(this.tick, 1000.0 / this.fps);
 };
 
@@ -84,9 +132,13 @@ MoveTimer.prototype.stop = function(direction) {
 		this.timer = undefined;
 	}	
 };
-
 MoveTimer.prototype.tick = function() {
-	player.move(move_timer.direction);
+	for(var i = 0; i < move_timer.directions.length; i++) {
+		if(move_timer.directions[i] == "up") {
+			//jumping = true;
+		}
+		player.move(move_timer.directions[i]);
+	}	
 };
 
 var Player = function(name) {
@@ -127,10 +179,8 @@ Player.prototype.move = function(direction) {
 		//WIP ;_;
 	} else if(direction == "up"){
 		on_Ground = false;
-	}
-	//while in the air
-	if(!on_Ground){
-		console.log(this.yspeed);
+		//while in the air
+
 		if(jumping){
 			this.yspeed = JUMP_SPEED;
 			timeout++;
@@ -157,8 +207,11 @@ Player.prototype.move = function(direction) {
 			//this.y = 300;
 			on_Ground = true;
 			timeout = 0;
-			clearInterval(move_timer.timer);
-			move_timer.timer = undefined;
+			for(var i = 0; i < move_timer.dirs_to_remove.length; i++) {
+				move_timer.removeDirection(move_timer.dirs_to_remove[i]);
+			}			
+			//clearInterval(move_timer.timer);
+			//move_timer.timer = undefined;
 		}
 		//console.log(this.y);
 	}
@@ -185,7 +238,7 @@ socket.on('init', function(name) {
 socket.on('update', function(players_update) {
 	if(players.length == 0 || players.length != players_update.length) {
 		players = players_update;
-		console.log("updating");
+		//console.log("updating");
 	}
 	for(var i = 0; i < players_update.length; i++) {
 		players[i].x = players_update[i].x;
