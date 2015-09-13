@@ -32,7 +32,8 @@ function setupCanvas() {
 
 function createMap() {
 	map = new Map();
-	map.addObject(new Rectangle(0, 300, 600, 300));
+	map.addObject(new Rectangle(100, 300, 600, 300));
+	map.addObject(new Rectangle(350, 100, 100, 100));
 }
 
 function drawMap() {

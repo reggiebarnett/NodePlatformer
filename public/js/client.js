@@ -152,6 +152,10 @@ var Player = function(name) {
 	this.yspeed = 0;
 };
 
+Player.prototype.intersects = function(shape, dx, dy) {
+
+};
+
 /// Determine how many pixels in both directions the player will move
 /// If dx or dy are non-zero, emit move info to the server
 Player.prototype.move = function(direction) {
@@ -196,13 +200,9 @@ Player.prototype.move = function(direction) {
 			}
 		}
 
-		if(player.y + this.yspeed > 300) {
-			dy = 300 - player.y;
-		} else  {
-			dy = this.yspeed;
-		}		
+		dy = this.yspeed;
 
-		if(this.y >= 300 && !jumping){
+		/*if(this.y >= 300 && !jumping){
 			dy = 0;
 			//this.y = 300;
 			on_Ground = true;
@@ -212,8 +212,39 @@ Player.prototype.move = function(direction) {
 			}			
 			//clearInterval(move_timer.timer);
 			//move_timer.timer = undefined;
-		}
+		}*/
 		//console.log(this.y);
+	}
+	for(var i = 0; i < map.objects.length; i++) {
+		var shape = map.objects[i]
+		if(dy > 0 && player.y <= shape.y) { // falling
+			if(player.y + dy >= shape.y) {
+				if(player.x + dx + player.width >= shape.x && player.x + dx <= shape.x + shape.width) {
+					dy = shape.y - player.y;
+					on_Ground = true;
+					timeout = true;
+					for(var i = 0; i < move_timer.dirs_to_remove.length; i++) {
+						move_timer.removeDirection(move_timer.dirs_to_remove[i]);
+					}	
+				}
+			}
+		} else if(dy < 0 && player.y > shape.y) {
+			if(player.y - player.height + dy <= shape.y + shape.height) {
+				if(player.x + dx + player.width >= shape.x && player.x + dx <= shape.x + shape.width) {
+					dy = player.y - player.height - shape.y - shape.height;
+					dy *= -1;
+					console.log("dy: "+ dy);
+					jumping = false;
+					this.yspeed = 0;
+				}
+			}
+		}
+
+		if(dx > 0) {
+
+		} else if(dx < 0) {
+
+		}	
 	}
 
 	if(dx !== 0 || dy !== 0) {
